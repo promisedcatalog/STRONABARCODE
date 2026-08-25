@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etykieta Produktu</title>
+    <!-- Ładujemy bibliotekę bwip-js z CDN, żeby rysować kody kreskowe po stronie przeglądarki -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bwip-js/3.4.0/bwip-js-min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 90vw;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            word-wrap: break-word;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Tytuł produktu -->
+        <h1 id="product-title">Ładowanie...</h1>
+        
+        <!-- Miejsce na wygenerowany kod kreskowy -->
+        <canvas id="barcode-canvas"></canvas>
+        <div id="error-msg" class="error"></div>
+    </div>
+
+    <script>
+        // Pobieramy parametry z URL, np: ?title=Netflix%2050%20PLN&ean=1234567890123
+        const params = new URLSearchParams(window.location.search);
+        const title = params.get('title') || 'Nieznany produkt';
+        const ean = params.get('ean');
+
+        // Ustawiamy tytuł
+        document.getElementById('product-title').innerText = title;
+
+        // Jeśli mamy EAN, generujemy kod
+        if (ean) {
+            try {
+                // Konfiguracja bwip-js
+                bwipjs.toCanvas('barcode-canvas', {
+                    bcid: 'ean13',       // Typ kodu
+                    text: ean,           // Dane
+                    scale: 4,            // Skala obrazka
+                    height: 15,          // Wysokość słupków
+                    includetext: true,   // Pokaż cyfry pod kodem
+                    textxalign: 'center',// Wyśrodkuj cyfry
+                });
+            } catch (e) {
+                document.getElementById('error-msg').innerText = 'Błąd generowania kodu: ' + e.message;
+            }
+        } else {
+            document.getElementById('error-msg').innerText = 'Brak kodu EAN w adresie URL.';
+        }
+    </script>
+
+</body>
+</html>
